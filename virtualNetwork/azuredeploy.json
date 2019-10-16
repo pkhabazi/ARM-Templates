@@ -1,0 +1,66 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vNetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter the vnet name"
+      }
+    },
+    "vNetPrefix": {
+      "type": "array",
+      "metadata": {
+        "description": "The AddressSpace that contains an array of IP address ranges that can be used by subnets."
+      }
+    },
+    "vNetDnsServers": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of DNS Servers to be used by the vNet. When none are specified, Azure DNS is used."
+      }
+    },
+    "subnetConfig": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of the subnets configuration."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "subnetArray",
+        "count": "[length(parameters('subnetConfig'))]",
+        "input": {
+          "name": "[parameters('subnetConfig')[copyIndex('subnetArray')].name]",
+          "properties": {
+            "addressPrefix": "[parameters('subnetConfig')[copyIndex('subnetArray')].addressPrefix]",
+            "serviceEndpoints": "[parameters('subnetConfig')[copyIndex('subnetArray')].serviceEndpoints]"
+          }
+        }
+      }
+    ]
+  },
+  "resources": [
+    {
+      "name": "[parameters('vNetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('vNetPrefix')]"
+        },
+        "dhcpOptions": {
+          "dnsServers": "[parameters('vNetDnsServers')]"
+        },
+        "subnets": "[variables('subnetArray')]"
+      },
+      "resources": [
+      ]
+    }
+  ],
+  "outputs": {
+  }
+}
