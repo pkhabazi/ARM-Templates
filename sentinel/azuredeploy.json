@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+
+    },
+    "variables": {
+        "logAnalyticsWorkspace": "[concat('sent-',uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('logAnalyticsWorkspace')]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "PerGB2018"
+                },
+                "retention": 730
+            }
+        },
+        {
+            "name": "[concat('SecurityInsights','(', variables('logAnalyticsWorkspace'),')')]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+            ],
+            "properties": {
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+            },
+            "plan": {
+                "name": "[concat('SecurityInsights','(', variables('logAnalyticsWorkspace'),')')]",
+                "product": "OMSGallery/SecurityInsights",
+                "publisher": "Microsoft",
+                "promotionCode": ""
+            }
+        }
+    ],
+    "outputs": {
+        "name":{
+            "type":"string",
+            "value": "[variables('logAnalyticsWorkspace')]"
+        }
+    }
+}
