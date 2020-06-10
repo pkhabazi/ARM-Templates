@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vNetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter the vnet name"
+      }
+    },
+    "vNetPrefix": {
+      "type": "array",
+      "metadata": {
+        "description": "The AddressSpace that contains an array of IP address ranges that can be used by subnets."
+      }
+    },
+    "vNetDnsServers": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of DNS Servers to be used by the vNet. When none are specified, Azure DNS is used."
+      }
+    },
+    "subnetConfig": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of the subnets configuration."
+      }
+    },
+    "gatewayConfig": {
+      "type": "object",
+      "metadata": {
+        "description": "Array of the gateway configuration."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "subnetArray",
+        "count": "[length(parameters('subnetConfig'))]",
+        "input": {
+          "name": "[parameters('subnetConfig')[copyIndex('subnetArray')].name]",
+          "properties": {
+            "addressPrefix": "[parameters('subnetConfig')[copyIndex('subnetArray')].addressPrefix]",
+            "serviceEndpoints": "[parameters('subnetConfig')[copyIndex('subnetArray')].serviceEndpoints]",
+            "networkSecurityGroup": {
+              "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('subnetConfig')[copyIndex('subnetArray')].name, '-nsg'))]"
+            }
+          }
+        }
+      }
+    ],
+    "gatewaySubnet": [
+      {
+        "name": "GatewaySubnet",
+        "properties": {
+          "addressPrefix": "[parameters('gatewayConfig').gatewayAddressPrefix]"
+        }
+      }
+    ]
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('subnetConfig')[copyIndex('nsg')].name, '-nsg')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-11-01",
+      "copy": {
+        "name": "nsg",
+        "count": "[length(parameters('subnetConfig')[copyIndex('nsg')].name)]"
+      },
+      "properties": {
+        "securityRules": "[parameters('subnetConfig')[copyIndex('nsg')].securityRules]"
+      }
+    },
+    {
+      "name": "[parameters('vNetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-11-01",
+      "dependsOn": [
+        "nsg"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('vNetPrefix')]"
+        },
+        "dhcpOptions": {
+          "dnsServers": "[parameters('vNetDnsServers')]"
+        },
+        "subnets": "[if(parameters('gatewayConfig').createGateway,concat(variables('subnetArray'),variables('gatewaySubnet')),variables('subnetArray'))]"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

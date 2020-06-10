@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vNetName": {
+      "value": ""
+    },
+    "vNetPrefix": {
+      "value": [
+        "10.0.0.0/16"
+      ]
+    },
+    "vNetDnsServers": {
+      "value": [
+        "8.8.8.8"
+      ]
+    },
+    "subnetConfig": {
+      "value": [
+        {
+          "name": "subnet-1",
+          "addressPrefix": "10.0.1.0/24",
+          "serviceEndpoints": [
+            {
+              "service": "Microsoft.Sql",
+              "locations": [
+                "westeurope"
+              ]
+            }
+          ],
+          "securityRules": [
+            {
+              "name": "AllowVnetInBound01",
+              "properties": {
+                "description": "Allow inbound traffic from all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 400,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "AllowVnetInBound02",
+              "properties": {
+                "description": "Allow inbound traffic from all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "subnet-2",
+          "addressPrefix": "10.0.2.0/24",
+          "serviceEndpoints": [
+            {
+              "service": "Microsoft.Sql",
+              "locations": [
+                "westeurope"
+              ]
+            },
+            {
+              "service": "Microsoft.Storage",
+              "locations": [
+                "westeurope",
+                "northeurope"
+              ]
+            }
+          ],
+          "securityRules": [
+            {
+              "name": "AllowVnetInBound01",
+              "properties": {
+                "description": "Allow inbound traffic from all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 400,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            },
+            {
+              "name": "AllowVnetInBound02",
+              "properties": {
+                "description": "Allow inbound traffic from all VMs in VNET",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
